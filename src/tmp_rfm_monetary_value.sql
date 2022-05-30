@@ -1,3 +1,4 @@
+insert into analysis.tmp_rfm_monetary_value (user_id, monetary_value)
 select u.id user_id, ntile(5) OVER(ORDER BY sum(o.payment) nulls first) monetary_value
 from analysis.users u
 left join analysis.orders o on u.id = o.user_id 
