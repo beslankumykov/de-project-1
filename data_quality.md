@@ -1,15 +1,15 @@
 Проверка таблицы с заказами на глубину:
 ```
-select DATE(DATE_TRUNC('month', order_ts)) as month, count(*) total_records from orders group by month order by month;
+select DATE(DATE_TRUNC('month', order_ts)) as month, count(*) total_records from production.orders group by month order by month;
 ```
 Проверка показала, что в источнике есть данные только за два месяца 2022-го года. 
 Соответственно метрики будут построены по этим данным.
 
 Проверка используемых полей в таблице с заказами на полноту:
 ```
-select count(case when order_ts is null then 1 end) as empty_val_prc from orders;
-select count(case when order_id is null then 1 end) as empty_val_prc from orders;
-select count(case when payment is null then 1 end) as empty_val_prc from orders;
+select count(case when production.order_ts is null then 1 end) as empty_val_cnt from orders;
+select count(case when production.order_id is null then 1 end) as empty_val_cnt from orders;
+select count(case when production.payment is null then 1 end) as empty_val_cnt from orders;
 ```
 Проверка показала, что в источнике нет пустых значений по интересующим полям.
   
@@ -18,3 +18,17 @@ select count(case when payment is null then 1 end) as empty_val_prc from orders;
 ALTER TABLE production.orders ADD CONSTRAINT orders_pkey PRIMARY KEY (order_id);
 ALTER TABLE production.orders ADD CONSTRAINT orders_check CHECK ((cost = (payment + bonus_payment)));
 ```
+
+Проверка того, что при требуемых фильтрах по каждому клиенту есть необходимая информация:
+```
+select * from
+(
+select u.id, max(o.order_ts) max_order_ts, count(o.order_id) count_order_id, sum(o.payment) sum_payment
+from analysis.users u
+left join orders o on u.id = o.user_id 
+and o.status = (select id from analysis.orderstatuses os where key = 'Closed') and o.order_ts >= to_date('01.01.2021','dd.mm.yyyy')
+group by u.id
+) t
+where max_order_ts is null or count_order_id = 0 or sum_payment is null;
+```
+Проверка показала, что по 12-ти клиентам при требуемых фильтрах в таблице orders нет информации. Они не будут учитываться в расчетах.
