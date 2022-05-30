@@ -1,3 +1,4 @@
+-- Создание представлений в схеме analysis
 create view analysis.orders as select * from production.orders o;
 create view analysis.orderitems as select * from production.orderitems oi;
 create view analysis.orderstatuses as select * from production.orderstatuses os;
