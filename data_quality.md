@@ -13,3 +13,8 @@ select count(case when payment is null then 1 end) as empty_val_prc from orders;
 ```
 Проверка показала, что в источнике нет пустых значений по интересующим полям.
   
+Дополнительно в источнике используются следующие ограничения для контроля качества данных в таблице с заказами:
+```
+ALTER TABLE production.orders ADD CONSTRAINT orders_pkey PRIMARY KEY (order_id);
+ALTER TABLE production.orders ADD CONSTRAINT orders_check CHECK ((cost = (payment + bonus_payment)));
+```
