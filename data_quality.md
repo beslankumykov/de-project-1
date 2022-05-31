@@ -32,3 +32,5 @@ where max_order_ts is null or count_order_id = 0 or sum_payment is null;
 ALTER TABLE production.orders ADD CONSTRAINT orders_pkey PRIMARY KEY (order_id);
 ALTER TABLE production.orders ADD CONSTRAINT orders_check CHECK ((cost = (payment + bonus_payment)));
 ```
+Полный перечень ограничений приведен в отдельном документе: 
+https://docs.google.com/spreadsheets/d/1MIc4xCww7sTV_IpScqHlEf8IJhdot5yhkXIyw5X1QUE/edit?usp=sharing
